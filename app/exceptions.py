@@ -1,56 +1,68 @@
 from fastapi import HTTPException, status
 
-UserAlreadyExistException = HTTPException(
-    status_code=status.HTTP_409_CONFLICT,
-    detail="Пользователь уже существует",
-)
 
-IncorrectEmailOrPassword = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Неверная почта или пароль",
-)
+class BookingException(HTTPException):
+    status_code = 500
+    detail = "Ошибка на стороне сервера"
 
-TokenExpireException = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Токен истек",
-)
-
-TokenAbsentException = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Токен отсутствует",
-)
-
-IncorrectTokenFormatException = HTTPException(
-    status_code=status.HTTP_401_UNAUTHORIZED,
-    detail="Неверный формат токена",
-)
-
-UserIsNotPresentException = HTTPException(status_code=status.HTTP_401_UNAUTHORIZED)
-
-RoomCannotBeBooked = HTTPException(
-    status_code=status.HTTP_409_CONFLICT,
-    detail="Не осталось свободных мест"
-)
-
-FetchingBookingsError = HTTPException(status_code=500, detail="Произошла ошибка при получении бронирований.")
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail)
 
 
-NoSuchHotelException = HTTPException(
-    status_code=status.HTTP_404_NOT_FOUND,
-    detail="Такого отеля не существует",
-)
+class UserAlreadyExistsException(BookingException):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "Пользователь уже существует"
 
-NoSuchBookingException = HTTPException(
-    status_code=status.HTTP_404_NOT_FOUND,
-    detail="Такого бронирования не существует",
-)
 
-DateToLessThanDateFromException = HTTPException(
-    status_code=status.HTTP_400_BAD_REQUEST,
-    detail="Дата окончания бронирования не может быть раньше даты начала",
-)
+class IncorrectEmailOrPasswordException(BookingException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Неверная почта или пароль"
 
-RoomCannotBeBookedException = HTTPException(
-    status_code=status.HTTP_409_CONFLICT,
-    detail="Номер не может быть забронирован",
-)
+
+class TokenExpiredException(BookingException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Токен истек"
+
+
+class NoTokenException(BookingException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Токен отсутствует"
+
+
+class IncorrectTokenFormatException(BookingException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+    detail = "Неверный формат токена"
+
+
+class UserIsNotPresentException(BookingException):
+    status_code = status.HTTP_401_UNAUTHORIZED
+
+
+class RoomeCannotBeBookedException(BookingException):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "Не осталось свободных номеров"
+
+
+class BookingNotFromThisUserException(BookingException):
+    status_code = status.HTTP_403_FORBIDDEN
+    detail = "Вы не тот пользователь, кто забронировал этот номер"
+
+
+class NoSuchBookingException(BookingException):
+    status_code = status.HTTP_404_NOT_FOUND
+    detail = "Такой брони не существует"
+
+
+class NoSuchHotelException(BookingException):
+    status_code = status.HTTP_404_NOT_FOUND
+    detail = "Такого отеля не существует"
+
+
+class DateToLessThanDateFromException(BookingException):
+    status_code = status.HTTP_409_CONFLICT
+    detail = "Дата окончания бронирования должна быть больше, чем дата его начала"
+
+
+class NoSuchRoomException(BookingException):
+    status_code = status.HTTP_404_NOT_FOUND
+    detail = "Такой комнаты не существует"

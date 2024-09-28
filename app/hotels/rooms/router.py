@@ -11,6 +11,7 @@ rooms_router = APIRouter(prefix="/hotels", tags=["Отели"])
 
 
 @rooms_router.get("/{hotel_id}/rooms")
+@cache(expire=30)
 async def get_rooms(
     hotel_id: int, date_from: date, date_to: date
 ) -> Optional[list[SRoom]]:
