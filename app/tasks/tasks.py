@@ -1,8 +1,12 @@
+import smtplib
 from pathlib import Path
 
 from PIL import Image
+from pydantic import EmailStr
 
+from app.config import settings
 from app.tasks.celery_root import celery
+from app.tasks.email_templates import create_booking_confirmation_template
 
 
 @celery.task
@@ -14,7 +18,7 @@ def proces_picture(
     im_resized_1000_500 = im.resize((1000, 500))
     im_resized_200_100 = im.resize((200, 100))
     im_resized_1000_500.save(f"app/static/images/resized_1000_500_{im_path.name}")
-    image_resized_200_100.save(f"app/static/images/resized_200_100_{image_path.name}")
+    im_resized_200_100.save(f"app/static/images/resized_200_100_{im_path.name}")
 
 
 @celery.task

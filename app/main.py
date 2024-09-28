@@ -1,9 +1,13 @@
+from typing import AsyncIterator
+
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 from fastapi.security import OAuth2PasswordBearer
 from starlette.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 
 from app.bookings.router import booking_router as router_bookings
+from app.config import settings
 from app.users.router import router as router_users
 from app.hotels.router import hotels_router as router_hotels
 from app.pages.router import router as router_pages
@@ -14,6 +18,13 @@ from fastapi_cache.backends.redis import RedisBackend
 from fastapi_cache.decorator import cache
 
 from redis import asyncio as aioredis
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI) -> AsyncIterator[None]:
+    redis = aioredis.from_url(f"redis://{settings.REDIS_HOST}:{settings.REDIS_PORT}")
+    FastAPICache.init(RedisBackend(redis), prefix="cache")
+    yield
 
 
 app = FastAPI()
@@ -41,11 +52,3 @@ app.add_middleware(
     allow_headers=["Content-Type", "Set-Cookie", "Access-Control_Allow-Headers",
                    "Access-Control_Allow-Origin", "Authorization"]
 )
-
-
-@app.on_event("startup")
-def startup():
-    redis = aioredis.from_url("redis://localhost:6379", encoding="utf8", decode_responses=True)
-    FastAPICache.init(RedisBackend(redis), prefix="cache")
-
-
